@@ -1,0 +1,25 @@
+﻿@model Restorix.ViewModels.TransferOrderViewModel
+
+@{
+    ViewData["Title"] = @Model.Order.Table.Name;
+}
+
+<h2>Sipariş Transfer - Masa @Model.Order.Table.Name</h2>
+
+<div class="container">
+    <div class="row">
+       @foreach (var table in Model?.AvailableTables ?? Enumerable.Empty<Table>())
+        {
+            <div class="col-md-2 mb-3">
+                <a href="@Url.Action("ConfirmTransfer", "OrderManagement", new { orderId = Model?.Order?.Id, newTableId = table?.Id })" class="text-decoration-none">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@table?.Name</h5>
+                            <p class="card-text">Müsait</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>

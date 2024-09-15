@@ -1,0 +1,32 @@
+﻿@model IEnumerable<Restorix.Models.Table>
+@{
+    ViewData["Title"] = "Masa Yönetimi";
+}
+<h2>Masa Yönetimi</h2>
+<div class="container">
+    <div class="row">
+        @foreach (var table in Model)
+        {
+            <div class="col-md-2 mb-3">
+                <a href="@Url.Action("Index", "OrderManagement", new { tableId = table.Id })" class="text-decoration-none">
+                    <div class="card @(table.IsOccupied ? "bg-danger" : "bg-success") text-white">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@table.Name</h5>
+                            <p class="card-text">@(table.IsOccupied ? "Dolu" : "Müsait")</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .card:active {
+        transform: scale(0.95);
+    }
+</style>

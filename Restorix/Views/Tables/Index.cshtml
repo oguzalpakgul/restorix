@@ -1,0 +1,31 @@
+﻿@model IEnumerable<Table>
+
+<h1>Masa Listesi</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Yeni Masa Ekle</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Adı</th>
+            <th>Oluşturulmuş</th>
+            <th>İşlem</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var table in Model)
+        {
+            <tr>
+                <td>@table.Id</td>
+                <td>@table.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@table.Id">Düzenle</a> |
+                    <a asp-action="Delete" asp-route-id="@table.Id">Sil</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,174 @@
+﻿@model Restorix.ViewModels.OrderManagementViewModel
+@{
+    ViewData["Title"] = @Model.Table.Name;
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Ürünler</h3>
+            <div class="row">
+                @foreach (var product in Model.Products)
+                {
+
+                    <div class="col-md-4 mb-3">
+                        <div class="card product-card" data-product-id="@product.Id" data-table-id="@Model.Table.Id" onclick="addProduct(this)">
+                            @if (!string.IsNullOrEmpty(product.ImagePath))
+                            {
+                                <img src="@product.ImagePath" class="card-img-top" alt="@product.Name">
+                            }
+                            <div class="card-body">
+                                <h5 class="card-title">@product.Name</h5>
+                                <p class="card-text">@product.Price.ToString("C")</p>
+                                <p class="card-text"><small class="text-muted">@product.Category?.Name</small></p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-md-6 d-flex flex-column">
+            <h3>Sipariş (@Model.Table.Name)</h3>
+            <div class="flex-grow-1">
+                <h4>Ödenmemiş Ürünler</h4>
+                @if (Model.Order?.Items != null && Model.Order.Items.Any(i => i.Quantity > i.PaidQuantity))
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Adet</th>
+                                <th>Birim Fiyat</th>
+                                <th>Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var group in Model.Order.Items
+                           .Where(i => i.Quantity > i.PaidQuantity && i.Product != null)
+                           .GroupBy(i => i.ProductId)
+                           .Select(g => new
+                           {
+                               Product = g.First().Product,
+                               Quantity = g.Sum(i => i.Quantity - i.PaidQuantity),
+                               Price = g.First().Price
+                           }))
+                                    {
+                                <tr>
+                                    <td>@group.Product?.Name</td> 
+                                    <td>
+                                        <div class="input-group">
+                                            <form asp-action="DecreaseQuantity" asp-route-tableId="@Model.Table.Id" asp-route-productId="@group.Product.Id" method="post">
+                                                <button type="submit" class="btn btn-danger btn-sm">-</button>
+                                            </form>
+                                            <span class="input-group-text">@group.Quantity</span>
+                                            <form asp-action="IncreaseQuantity" asp-route-tableId="@Model.Table.Id" asp-route-productId="@group.Product.Id" method="post">
+                                                <button type="submit" class="btn btn-success btn-sm">+</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td>@group.Price.ToString("C")</td>
+                                    <td>@((group.Price * group.Quantity).ToString("C"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3"><strong>Ödenmemiş Toplam:</strong></td>
+                                <td colspan="2"><strong>@Model.Order.Items.Where(i => i.Quantity > i.PaidQuantity).Sum(i => i.Price * (i.Quantity - i.PaidQuantity)).ToString("C")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+                else
+                {
+                    <p>Ödenmemiş ürün bulunmamaktadır.</p>
+                }
+
+                <h4>Ödenmiş Ürünler</h4>
+                @if (Model.Order?.Items != null && Model.Order.Items.Any(i => i.PaidQuantity > 0))
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Adet</th>
+                                <th>Birim Fiyat</th>
+                                <th>Toplam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var group in Model.Order.Items
+                           .Where(i => i.PaidQuantity > 0 && i.Product != null)
+                           .GroupBy(i => i.ProductId)
+                           .Select(g => new
+                           {
+                               Product = g.First().Product,
+                               Quantity = g.Sum(i => i.PaidQuantity),
+                               Price = g.First().Price
+                           }))
+                                    {
+                                <tr>
+                                    <td>@group.Product?.Name</td> 
+                                    <td>@group.Quantity</td>
+                                    <td>@group.Price.ToString("C")</td>
+                                    <td>@((group.Price * group.Quantity).ToString("C"))</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3"><strong>Ödenmiş Toplam:</strong></td>
+                                <td><strong>@Model.Order.Items.Where(i => i.PaidQuantity > 0).Sum(i => i.Price * i.PaidQuantity).ToString("C")</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+                else
+                {
+                    <p>Ödenmiş ürün bulunmamaktadır.</p>
+                }
+
+                @if (Model.Order != null && Model.Order.Items.Any(i => i.Quantity > i.PaidQuantity))
+                {
+                    <a asp-action="Payment" asp-route-tableId="@Model.Table.Id" class="btn btn-success btn-block">ÖDEME</a>
+                }
+                @if (Model.Order != null && !Model.Order.IsCompleted && !Model.Order.Items.Any(i => i.Quantity > i.PaidQuantity))
+                {
+                    <a asp-action="CloseOrder" asp-route-orderId="@Model.Order.Id" class="btn btn-danger btn-block">SİPARİŞİ KAPAT</a>
+                }
+                @if (Model.Order != null && !Model.Order.IsCompleted)
+                {
+                    <a asp-controller="OrderManagement" asp-action="TransferOrder" asp-route-orderId="@Model.Order.Id" class="btn btn-warning btn-block mt-3">SİPARİŞİ TRANSFER ET</a>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function addProduct(element) {
+        var productId = element.getAttribute('data-product-id');
+        var tableId = element.getAttribute('data-table-id');
+
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = 'OrderManagement/IncreaseQuantity'; 
+
+        var tableIdInput = document.createElement('input');
+        tableIdInput.type = 'hidden';
+        tableIdInput.name = 'tableId';
+        tableIdInput.value = tableId;
+        form.appendChild(tableIdInput);
+
+        var productIdInput = document.createElement('input');
+        productIdInput.type = 'hidden';
+        productIdInput.name = 'productId';
+        productIdInput.value = productId;
+        form.appendChild(productIdInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>

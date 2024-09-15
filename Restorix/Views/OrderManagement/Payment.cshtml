@@ -1,0 +1,135 @@
+﻿@model Restorix.ViewModels.PaymentViewModel
+@{
+    ViewData["Title"] = @Model.Table.Name;
+}
+<h2>Ödeme - Masa @Model.Table.Name</h2>
+<form asp-action="ProcessPayment" method="post">
+    <input type="hidden" asp-for="Table.Id" />
+    <h3>Ödenmemiş Ürünler</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ürün</th>
+                <th>Toplam Adet</th>
+                <th>Ödenen Adet</th>
+                <th>Birim Fiyat</th>
+                <th>Toplam Tutar</th>
+                <th>Ödenecek Adet</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var group in Model.Order.Items
+            .Where(i => i.PaidQuantity < i.Quantity)
+            .GroupBy(i => i.ProductId)
+            .Select(g => new
+            {
+               Product = g.First().Product,
+               TotalQuantity = g.Sum(i => i.Quantity),
+               PaidQuantity = g.Sum(i => i.PaidQuantity),
+               Price = g.First().Price,
+               ItemIds = string.Join(",", g.Select(i => i.Id))
+            }))
+            {
+                <tr>
+                    <td>@group.Product.Name</td>
+                    <td>@group.TotalQuantity</td>
+                    <td>@group.PaidQuantity</td>
+                    <td>@group.Price.ToString("C")</td>
+                    <td>@((group.Price * group.TotalQuantity).ToString("C"))</td>
+                    <td>
+                        <div class="input-group">
+                            <button type="button" class="btn btn-outline-secondary decrease-quantity">-</button>
+                            <input type="number" name="Quantities" readonly
+                                   min="0" max="@(group.TotalQuantity - group.PaidQuantity)"
+                                   value="0"
+                                   data-item-ids="@group.ItemIds"
+                                   class="form-control quantity-input text-center" />
+                            <button type="button" class="btn btn-outline-secondary increase-quantity">+</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4"><strong>Toplam Ödenecek Tutar:</strong></td>
+                <td colspan="2"><strong id="totalPayable">0.00 ₺</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+    <div class="form-group">
+        <button type="button" id="selectAllUnpaid" class="btn btn-secondary mb-3">Tüm Ödenmeyenleri Seç</button>
+    </div>
+    <div class="form-group">
+        <label asp-for="PaymentMethod">Ödeme Yöntemi:</label>
+        <select asp-for="PaymentMethod" class="form-control">
+            <option value="Nakit">Nakit</option>
+            <option value="Kredi Kartı">Kredi Kartı</option>
+        </select>
+    </div>
+    <input type="hidden" id="selectedItems" name="selectedItems" />
+    <button type="submit" class="btn btn-primary">Öde</button>
+</form>
+<style>
+    .quantity-input {
+        max-width: 60px;
+    }
+
+    .input-group .btn {
+        z-index: 0;
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const quantityInputs = document.querySelectorAll('.quantity-input');
+        const totalPayableElement = document.getElementById('totalPayable');
+        const selectedItemsInput = document.getElementById('selectedItems');
+        const selectAllButton = document.getElementById('selectAllUnpaid');
+
+        function updateTotalAndSelectedItems() {
+            let total = 0;
+            let selectedItems = [];
+            quantityInputs.forEach(input => {
+                const quantity = parseInt(input.value);
+                const price = parseFloat(input.closest('tr').querySelector('td:nth-child(4)').textContent.replace('₺', '').trim());
+                const itemIds = input.dataset.itemIds;
+                if (quantity > 0) {
+                    total += quantity * price;
+                    selectedItems.push(`${itemIds}:${quantity}`);
+                }
+            });
+            totalPayableElement.textContent = total.toFixed(2) + ' ₺';
+            selectedItemsInput.value = selectedItems.join(',');
+        }
+
+        function handleQuantityChange(input, change) {
+            const currentValue = parseInt(input.value);
+            const newValue = Math.max(0, Math.min(currentValue + change, parseInt(input.max)));
+            input.value = newValue;
+            updateTotalAndSelectedItems();
+        }
+
+        document.querySelectorAll('.decrease-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                handleQuantityChange(this.parentElement.querySelector('.quantity-input'), -1);
+            });
+        });
+
+        document.querySelectorAll('.increase-quantity').forEach(button => {
+            button.addEventListener('click', function () {
+                handleQuantityChange(this.parentElement.querySelector('.quantity-input'), 1);
+            });
+        });
+
+        selectAllButton.addEventListener('click', function () {
+            quantityInputs.forEach(input => {
+                input.value = input.max;
+            });
+            updateTotalAndSelectedItems();
+        });
+
+        quantityInputs.forEach(input => {
+            input.addEventListener('change', updateTotalAndSelectedItems);
+        });
+    });
+</script>

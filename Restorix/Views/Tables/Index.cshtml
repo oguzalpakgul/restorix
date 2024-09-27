@@ -1,10 +1,14 @@
 ﻿@model IEnumerable<Table>
 
-<h1>Masa Listesi</h1>
+    @{
+    ViewData["Title"] = "Masa Listesi";
+}
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Yeni Masa Ekle</a>
-</p>
+<div class="card ">
+
+
+    <div class="card-body ">
+
 
 <table class="table">
     <thead>
@@ -12,7 +16,6 @@
             <th>ID</th>
             <th>Adı</th>
             <th>Oluşturulmuş</th>
-            <th>İşlem</th>
         </tr>
     </thead>
     <tbody>
@@ -22,10 +25,16 @@
                 <td>@table.Id</td>
                 <td>@table.Name</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@table.Id">Düzenle</a> |
-                    <a asp-action="Delete" asp-route-id="@table.Id">Sil</a>
+                            <a asp-action="Edit" asp-route-id="@table.Id" class="btn btn-warning">Düzenle</a> |
+                            <a asp-action="Delete" asp-route-id="@table.Id" class="btn btn-danger">Sil</a>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+        <p>
+            <a asp-action="Create" class="btn btn-primary align-self-end">Yeni Masa Ekle</a>
+        </p>
+    </div>
+</div>

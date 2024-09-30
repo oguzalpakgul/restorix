@@ -12,17 +12,14 @@
                 {
 
                     <div class="col-md-4 mb-3">
-                        <div class="card product-card" data-product-id="@product.Id" data-table-id="@Model.Table.Id" onclick="addProduct(this)">
-                            @if (!string.IsNullOrEmpty(product.ImagePath))
-                            {
-                                <img src="@product.ImagePath" class="card-img-top" alt="@product.Name">
-                            }
-                            <div class="card-body">
-                                <h5 class="card-title">@product.Name</h5>
-                                <p class="card-text">@product.Price.ToString("C")</p>
-                                <p class="card-text"><small class="text-muted">@product.Category?.Name</small></p>
+                        <a class="text-decoration-none" href="">
+                            <div class="card bg-body" data-product-id="@product.Id" data-table-id="@Model.Table.Id" onclick="addProduct(this)">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@product.Name</h5>
+                                    <p class="card-text">@product.Price.ToString("C")</p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 }
             </div>
@@ -53,9 +50,9 @@
                                Quantity = g.Sum(i => i.Quantity - i.PaidQuantity),
                                Price = g.First().Price
                            }))
-                                    {
+                            {
                                 <tr>
-                                    <td>@group.Product?.Name</td> 
+                                    <td>@group.Product?.Name</td>
                                     <td>
                                         <div class="input-group">
                                             <form asp-action="DecreaseQuantity" asp-route-tableId="@Model.Table.Id" asp-route-productId="@group.Product.Id" method="post">
@@ -107,9 +104,9 @@
                                Quantity = g.Sum(i => i.PaidQuantity),
                                Price = g.First().Price
                            }))
-                                    {
+                            {
                                 <tr>
-                                    <td>@group.Product?.Name</td> 
+                                    <td>@group.Product?.Name</td>
                                     <td>@group.Quantity</td>
                                     <td>@group.Price.ToString("C")</td>
                                     <td>@((group.Price * group.Quantity).ToString("C"))</td>
@@ -146,6 +143,14 @@
         </div>
     </div>
 </div>
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out;
+    }
+    .card:active {
+        transform: scale(0.95);
+    }
+</style>
 <script>
 
     function addProduct(element) {
@@ -154,7 +159,7 @@
 
         var form = document.createElement('form');
         form.method = 'post';
-        form.action = 'OrderManagement/IncreaseQuantity'; 
+        form.action = 'OrderManagement/IncreaseQuantity';
 
         var tableIdInput = document.createElement('input');
         tableIdInput.type = 'hidden';

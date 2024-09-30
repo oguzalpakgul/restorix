@@ -3,16 +3,26 @@
     ViewData["Title"] = "Yeni Masa Ekle";
 }
 
-<form asp-action="Create">
-    <div class="form-group">
-        <label asp-for="Name" class="control-label"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
-    </div>
-    
-    <div class="form-group">
-        <input type="submit" value="Ekle" class="btn btn-primary" />
-    </div>
-</form>
+<div class="card ">
+    <div class="card-body ">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <form asp-action="Create">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label">Masa Adı</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
 
-<a asp-action="Index">Geri dön</a>
+
+                        <div class="form-group mt-4">
+                            <button type="submit" class="btn btn-primary">EKLE</button>
+                            <a asp-action="Index" class="btn btn-secondary">LİSTEYE DÖN</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

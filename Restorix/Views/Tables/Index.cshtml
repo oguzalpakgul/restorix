@@ -1,37 +1,31 @@
 ﻿@model IEnumerable<Table>
 
-    @{
+@{
     ViewData["Title"] = "Masa Listesi";
 }
 
 <div class="card ">
-
-
     <div class="card-body ">
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Adı</th>
-            <th>Oluşturulmuş</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var table in Model)
-        {
-            <tr>
-                <td>@table.Id</td>
-                <td>@table.Name</td>
-                <td>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Masa Adı</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var table in Model)
+                {
+                    <tr>
+                        <td>@table.Name</td>
+                        <td>
                             <a asp-action="Edit" asp-route-id="@table.Id" class="btn btn-warning">Düzenle</a> |
                             <a asp-action="Delete" asp-route-id="@table.Id" class="btn btn-danger">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
         <p>
             <a asp-action="Create" class="btn btn-primary align-self-end">Yeni Masa Ekle</a>

@@ -1,31 +1,35 @@
 ﻿@model IEnumerable<Category>
 
-<h1>Kategori Listesi</h1>
+@{
+    ViewData["Title"] = "Kategori Listesi";
+}
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Yeni Kategori Ekle</a>
-</p>
+<div class="card ">
+    <div class="card-body ">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>KATEGORİ ADI</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@category.Name</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-warning">DÜZENLE</a> |
+                            <a asp-action="Delete" asp-route-id="@category.Id" class="btn btn-danger">SİL</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Adı</th>
-            <th>Oluşturulmuş</th>
-            <th>İşlem</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var category in Model)
-        {
-            <tr>
-                <td>@category.Id</td>
-                <td>@category.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@category.Id">Düzenle</a> |
-                    <a asp-action="Delete" asp-route-id="@category.Id">Sil</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <p>
+            <a asp-action="Create" class="btn btn-primary">YENİ KATEGORİ EKLE</a>
+        </p>
+
+    </div>
+</div>

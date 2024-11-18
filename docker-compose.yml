@@ -7,25 +7,22 @@ services:
       context: .
       dockerfile: Restorix/Dockerfile
     ports:
-    - 5050:8080
-    - 5051:8081 
+      - 5050:8080
     environment:
-    - ASPNETCORE_ENVIRONMENT=Development
-    #- ASPNETCORE_URLS=https://+:5050;http://+:5051
-    - ASPNETCORE_Kestrel_CertificatesDefault_Password=deneme123
-    - ASPNETCORE_Kestrel_CertificatesDefault_Path=/https/aspnetapp.pfx
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
     depends_on:
       - db
   db:
     image: postgres:15
     environment:
-        POSTGRES_DB: restorix_db
-        POSTGRES_USER: restorix_user
-        POSTGRES_PASSWORD: restorix_password
+      POSTGRES_DB: restorix_db
+      POSTGRES_USER: restorix_user
+      POSTGRES_PASSWORD: restorix_password
     volumes:
-        - postgres-restorix-data:/var/lib/postgresql/data
+      - postgres-restorix-data:/var/lib/postgresql/data
     ports:
-        - 5052:5432
+      - 5052:5432
 
 volumes:
   postgres-restorix-data:
